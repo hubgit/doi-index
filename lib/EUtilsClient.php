@@ -1,6 +1,6 @@
 <?php
 
-abstract class EUtilsClient extends CurlClient {
+class EUtilsClient extends CurlClient {
 	// use a specific server so that history paging doesn't fail when round robin changes
 	/** @string $server */
 	public $server = 'http://eutils.be-md.ncbi.nlm.nih.gov';
