@@ -8,35 +8,49 @@ define('OUTPUT_DIR', datadir('/doi'));
 $output = gzopen(OUTPUT_DIR . '/doi.csv.gz', 'w');
 
 $oai = new OAIClient;
-foreach (glob(INPUT_DIR . '/*.0.xml.gz') as $basefile) {
+
+$iterator = new FilesystemIterator(INPUT_DIR, FilesystemIterator::SKIP_DOTS);
+
+foreach ($iterator as $fileinfo) {
+	print $fileinfo->getPathname();
+
+	if (!$fileinfo->isDir()) {
+		continue;
+	}
+
+	$dir = $fileinfo->getPathname();
+
 	$i = 0;
 	$token = null;
-	$filename = $basefile;
 
 	do {
+		$filename = sprintf('%s/identifiers.%d.xml.gz', $dir, $i++);
 		print "$filename\n";
+
+		if (!file_exists($filename)) {
+			// TODO: error log
+			exit("File $filename does not exist\n");
+		}
 
 		list($xpath, $doc) = $oai->load($filename);
 		$root = $oai->root($xpath, 'ListIdentifiers');
 
 		foreach ($xpath->query('oai:header', $root) as $record) {
-			if (valid($xpath, $record)) {
-				$doi = $xpath->evaluate('string(oai:identifier)', $record);
-				$doi = preg_replace('#^info:doi/#', '', $doi);
-				fputcsv($output, array($doi));
+			// record is valid if the comment contains 'type: journal_article'
+			$comment = $xpath->evaluate('string(.//comment()[1])', $record);
+
+			if (strpos($comment, 'type: journal_article') === false) {
+				continue;
 			}
+
+			$doi = $xpath->evaluate('string(oai:identifier)', $record);
+			$doi = preg_replace('#^info:doi/#', '', $doi);
+			fputcsv($output, array($doi));
 		}
 
 		$token = $oai->token($xpath, $root);
-		$filename = preg_replace('/0\.xml\.gz$/', ++$i . '.xml.gz', $basefile);
 	} while ($token);
 }
 
 gzclose($output);
 
-function valid($xpath, $record) {
-	// record is valid if the comment contains 'type: journal_article'
-  $comment = $xpath->evaluate('string(.//comment()[1])', $record);
-
-  return strpos($comment, 'type: journal_article') !== false;
-}

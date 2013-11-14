@@ -16,13 +16,21 @@ $set = 'J';
 do {
 	$date = $datetime->format('Y-m-d');
 
+	$dir = OUTPUT_DIR . '/' . $date;
+
+	if (file_exists($dir)) {
+		continue; // TODO: check for files in it
+	}
+
+	mkdir($dir);
+
 	$params = array(
 		'set' => $set,
 		'from' => $date,
 		'until' => $date,
 	);
 
-	$oai->fetch('ListIdentifiers', $params, OUTPUT_DIR . '/' . $date);
+	$oai->fetch('ListIdentifiers', $params, $dir . '/identifiers');
 
 	$datetime->modify('-1 DAY');
 } while ($datetime > $earliest);
