@@ -19,7 +19,7 @@ do {
 	$dir = OUTPUT_DIR . '/' . $date;
 
 	if (file_exists($dir)) {
-		continue; // TODO: check for files in it
+		continue;
 	}
 
 	mkdir($dir);
@@ -30,7 +30,16 @@ do {
 		'until' => $date,
 	);
 
-	$oai->fetch('ListIdentifiers', $params, $dir . '/identifiers');
+	try {
+		$oai->fetch('ListIdentifiers', $params, $dir . '/identifiers');
+	} catch (Exception $e) {
+		// if something goes wrong, remove all the files and date directory
+		// TODO: error log
+		foreach (glob($dir . '/identifiers.*.xml.gz') as $file) {
+			unlink($file);
+		}
+		rmdir($dir);
+	}
 
 	$datetime->modify('-1 DAY');
 } while ($datetime > $earliest);

@@ -41,7 +41,6 @@ class OAIClient extends CurlClient {
 	public function fetch($verb, $params, $basefile) {
 		$page = 0;
 		$token = null;
-		$files = array();
 
 		do {
 			if ($token) {
@@ -51,31 +50,19 @@ class OAIClient extends CurlClient {
 			$filename = sprintf('%s.%d.xml.gz', $basefile, $page++);
 
 			if (file_exists($filename)) {
+				// TODO: error log
 				return;
 			}
 
-			$files[] = $filename;
-			$output = gzopen($filename, 'w');
-
 			$params['verb'] = $verb;
+			$output = gzopen($filename, 'w');
+			$this->get($this->base, $params, $output);
+			gzclose($output);
 
-			try {
-				$this->get($this->base, $params, $output);
-				gzclose($output);
-
-				list($xpath, $doc) = $this->load($filename);
-				$root = $this->root($xpath, $verb);
-			} catch (Exception $e) {
-				gzclose($output);
-
-				foreach ($files as $filename) {
-					print "Deleting $filename\n";
-					unlink($filename);
-				}
-
-				throw $e;
-			}
-		} while ($token = $this->token($xpath, $root));
+			list($xpath, $doc) = $this->load($filename);
+			$root = $this->root($xpath, $verb);
+			$token = $this->token($xpath, $root);
+		} while ($token);
 	}
 
 	public function root($xpath, $verb) {
