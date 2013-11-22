@@ -15,30 +15,27 @@ $set = 'J';
 
 do {
 	$date = $datetime->format('Y-m-d');
-
 	$dir = OUTPUT_DIR . '/' . $date;
 
-	if (file_exists($dir)) {
-		continue;
-	}
+	if (!file_exists($dir)) {
+		mkdir($dir);
 
-	mkdir($dir);
+		$params = array(
+			'set' => $set,
+			'from' => $date,
+			'until' => $date,
+		);
 
-	$params = array(
-		'set' => $set,
-		'from' => $date,
-		'until' => $date,
-	);
-
-	try {
-		$oai->fetch('ListIdentifiers', $params, $dir . '/identifiers');
-	} catch (Exception $e) {
-		// if something goes wrong, remove all the files and date directory
-		// TODO: error log
-		foreach (glob($dir . '/identifiers.*.xml.gz') as $file) {
-			unlink($file);
+		try {
+			$oai->fetch('ListIdentifiers', $params, $dir . '/identifiers');
+		} catch (Exception $e) {
+			// if something goes wrong, remove all the files and date directory
+			// TODO: error log
+			foreach (glob($dir . '/identifiers.*.xml.gz') as $file) {
+				//unlink($file);
+			}
+			//rmdir($dir);
 		}
-		rmdir($dir);
 	}
 
 	$datetime->modify('-1 DAY');

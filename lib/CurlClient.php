@@ -25,7 +25,7 @@ class CurlClient {
 		));
 	}
 
-	protected function get($url, $params = array(), $file = null, $tries = 0)
+	public function get($url, $params = array(), $file = null, $tries = 0)
 	{
 		if (!empty($params)) {
 			$url .= '?' . http_build_query($params);

@@ -3,9 +3,6 @@
 require __DIR__ . '/../include.php';
 
 define('INPUT_DIR', datadir('/doi/original'));
-define('OUTPUT_DIR', datadir('/doi'));
-
-$output = gzopen(OUTPUT_DIR . '/doi.csv.gz', 'w');
 
 $oai = new OAIClient;
 
@@ -19,6 +16,8 @@ foreach ($iterator as $fileinfo) {
 	}
 
 	$dir = $fileinfo->getPathname();
+	$file = datadir('/doi/csv') . '/' . basename($dir) . '/doi.csv.gz';
+	$output = gzopen($file, 'w');
 
 	$i = 0;
 	$token = null;
@@ -50,7 +49,8 @@ foreach ($iterator as $fileinfo) {
 
 		$token = $oai->token($xpath, $root);
 	} while ($token);
-}
 
-gzclose($output);
+	gzclose($output);
+
+}
 
