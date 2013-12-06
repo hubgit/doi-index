@@ -3,12 +3,13 @@
 /**
  * Interact with an OAI-PMH repository
  */
-class OAIClient extends CurlClient {
-	/** @var string The base URL of the repository */
-	public $base;
+class OAIClient extends CurlClient
+{
+    /** @var string The base URL of the repository */
+    public $base;
 
-	/** @var array */
-	protected $files = array();
+    /** @var array */
+    protected $files = array();
 
     /**
      * Call the OAI-PMH interface.
@@ -19,32 +20,33 @@ class OAIClient extends CurlClient {
      *
      * @return array
      */
-	public function fetch($verb, $params, $basefile) {
-		$page = 0;
-		$token = null;
+    public function fetch($verb, $params, $basefile)
+    {
+        $page = 0;
+        $token = null;
 
-		do {
-			if ($token) {
-				$params = array('resumptionToken' => $token);
-			}
+        do {
+            if ($token) {
+                $params = array('resumptionToken' => $token);
+            }
 
-			$filename = $basefile . sprintf('%d.xml.gz', $page++);
+            $filename = $basefile . sprintf('%d.xml.gz', $page++);
 
-			if (file_exists($filename)) {
-				// TODO: error log
-				return;
-			}
+            if (file_exists($filename)) {
+                // TODO: error log
+                return;
+            }
 
-			$params['verb'] = $verb;
-			$output = gzopen($filename, 'w');
-			$this->get($this->base, $params, $output);
-			gzclose($output);
+            $params['verb'] = $verb;
+            $output = gzopen($filename, 'w');
+            $this->get($this->base, $params, $output);
+            gzclose($output);
 
-			list($xpath) = $this->load($filename);
-			$root = $this->root($xpath, $verb);
-			$token = $this->token($xpath, $root);
-		} while ($token);
-	}
+            list($xpath) = $this->load($filename);
+            $root = $this->root($xpath, $verb);
+            $token = $this->token($xpath, $root);
+        } while ($token);
+    }
 
     /**
      * Load the XML.
@@ -104,21 +106,23 @@ class OAIClient extends CurlClient {
      *
      * @return mixed
      */
-    public function root($xpath, $verb) {
-		return $xpath->query('oai:' . $verb)->item(0);
-	}
+    public function root($xpath, $verb)
+    {
+        return $xpath->query('oai:' . $verb)->item(0);
+    }
 
-	/**
-	 * Parse a resumption token from the response.
+    /**
+     * Parse a resumption token from the response.
      *
      * @param DOMXPath   $xpath
      * @param DOMElement $root
      *
      * @return string|null
-	 */
-	public function token($xpath, $root) {
-		$token = $xpath->evaluate('string(oai:resumptionToken)', $root);
+     */
+    public function token($xpath, $root)
+    {
+        $token = $xpath->evaluate('string(oai:resumptionToken)', $root);
 
-		return $token ?: null;
-	}
+        return $token ? : null;
+    }
 }

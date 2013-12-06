@@ -43,14 +43,14 @@ do {
 
     // if this day's data has already been fetched, continue
     if (!file_exists($dir)) {
-		mkdir($dir);
+        mkdir($dir);
 
-		$params = array(
-			'set' => $set,
-			'from' => $date,
-			'until' => $date,
-		);
-        
+        $params = array(
+            'set' => $set,
+            'from' => $date,
+            'until' => $date,
+        );
+
         try {
             // files will be $dir/identifiers.{page}.xml.gz
             $prefix = $dir . '/identifiers';

@@ -41,31 +41,31 @@ foreach ($date_dirs as $date_dir) {
 
         // if the fetching had failed for some reason, the file might not be found
         if (!file_exists($input_file)) {
-			// TODO: error log
-			exit("File $input_file does not exist\n");
-		}
+            // TODO: error log
+            exit("File $input_file does not exist\n");
+        }
 
         /** @var $xpath DOMXPath */
-		list($xpath, $doc) = $oai->load($input_file);
-		$root = $oai->root($xpath, 'ListIdentifiers');
+        list($xpath, $doc) = $oai->load($input_file);
+        $root = $oai->root($xpath, 'ListIdentifiers');
 
-		foreach ($xpath->query('oai:header', $root) as $record) {
-			// record is valid if the comment contains 'type: journal_article'
-			$comment = $xpath->evaluate('string(.//comment()[1])', $record);
+        foreach ($xpath->query('oai:header', $root) as $record) {
+            // record is valid if the comment contains 'type: journal_article'
+            $comment = $xpath->evaluate('string(.//comment()[1])', $record);
 
-			if (strpos($comment, 'type: journal_article') === false) {
-				continue;
-			}
+            if (strpos($comment, 'type: journal_article') === false) {
+                continue;
+            }
 
             // just store the DOI of each record
             $doi = $xpath->evaluate('string(oai:identifier)', $record);
-			$doi = preg_replace('#^info:doi/#', '', $doi);
-			fputcsv($output, array($doi));
-		}
+            $doi = preg_replace('#^info:doi/#', '', $doi);
+            fputcsv($output, array($doi));
+        }
 
         // the resumption token is in the response if there's another page
         $token = $oai->token($xpath, $root);
-	} while ($token);
+    } while ($token);
 
     // data/doi/csv/{Y-m-d}.csv.gz
     gzclose($output);

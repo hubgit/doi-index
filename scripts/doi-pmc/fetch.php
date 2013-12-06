@@ -12,16 +12,16 @@ $earliest = new DateTime('1999-01-01T12:00:00Z');
 $datetime = new DateTime('-2 DAYS');
 
 do {
-	$date = $datetime->format('Y-m-d');
+    $date = $datetime->format('Y-m-d');
 
-	$params = array(
-		'metadataPrefix' => 'pmc',
-		'from' => $date,
-		'until' => $date,
-	);
+    $params = array(
+        'metadataPrefix' => 'pmc',
+        'from' => $date,
+        'until' => $date,
+    );
 
-	$oai->fetch('ListRecords', $params, OUTPUT_DIR . '/' . $date);
+    $oai->fetch('ListRecords', $params, OUTPUT_DIR . '/' . $date);
 
-	$datetime->modify('-1 DAY');
+    $datetime->modify('-1 DAY');
 } while ($datetime > $earliest);
 

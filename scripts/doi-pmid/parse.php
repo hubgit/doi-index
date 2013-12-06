@@ -8,84 +8,86 @@ define('OUTPUT_DIR', datadir('/doi-pmid'));
 $output = gzopen(OUTPUT_DIR . '/doi-pmid.csv.gz', 'w');
 
 foreach (glob(INPUT_DIR . '/*', GLOB_ONLYDIR) as $dir) {
-	foreach (glob($dir . '/*.xml.gz') as $file) {
-		print "$file\n";
+    foreach (glob($dir . '/*.xml.gz') as $file) {
+        print "$file\n";
 
-		$reader = new XMLReader;
-		$reader->open('compress.zlib://' . $file);
-		$reader->setParserProperty(XMLReader::LOADDTD, true);
-		$reader->setParserProperty(XMLReader::VALIDATE, true);
-		$reader->setParserProperty(XMLReader::SUBST_ENTITIES, true);
+        $reader = new XMLReader;
+        $reader->open('compress.zlib://' . $file);
+        $reader->setParserProperty(XMLReader::LOADDTD, true);
+        $reader->setParserProperty(XMLReader::VALIDATE, true);
+        $reader->setParserProperty(XMLReader::SUBST_ENTITIES, true);
 
-		$items = array();
-		$item = null;
-		$list = null;
+        $items = array();
+        $item = null;
+        $list = null;
 
-		while ($reader->read()) {
-			switch ($reader->nodeType) {
-				case XMLREADER::ELEMENT:
-					switch ($reader->localName) {
-						case 'DocSum':
-							$item = array();
-						break;
+        while ($reader->read()) {
+            switch ($reader->nodeType) {
+                case XMLREADER::ELEMENT:
+                    switch ($reader->localName) {
+                        case 'DocSum':
+                            $item = array();
+                            break;
 
-						case 'Item':
-							$name = $reader->getAttribute('Name');
-							$type = $reader->getAttribute('Type');
+                        case 'Item':
+                            $name = $reader->getAttribute('Name');
+                            $type = $reader->getAttribute('Type');
 
-							// Integer|Date|String|Structure|List|Flags|Qualifier|Enumerator|Unknown
-							switch ($type) {
-								case 'List':
-									$item[$name] = array();
-									$list = $name;
-								break;
+                            // Integer|Date|String|Structure|List|Flags|Qualifier|Enumerator|Unknown
+                            switch ($type) {
+                                case 'List':
+                                    $item[$name] = array();
+                                    $list = $name;
+                                    break;
 
-								case 'String':
-								case 'Date':
-								case 'Integer':
-									$value = $reader->readString();
+                                case 'String':
+                                case 'Date':
+                                case 'Integer':
+                                    $value = $reader->readString();
 
-									if ($value === '') {
-										$value = null;
-									} else if ($type == 'Integer') {
-										$value = (int) $value;
-									}
+                                    if ($value === '') {
+                                        $value = null;
+                                    } else {
+                                        if ($type == 'Integer') {
+                                            $value = (int) $value;
+                                        }
+                                    }
 
-									if ($list) {
-										$item[$list][$name] = $value;
-									} else {
-										$item[$name] = $value;
-									}
-								break;
-							}
+                                    if ($list) {
+                                        $item[$list][$name] = $value;
+                                    } else {
+                                        $item[$name] = $value;
+                                    }
+                                    break;
+                            }
 
-						break;
-					}
-				break;
+                            break;
+                    }
+                    break;
 
-				case XMLREADER::END_ELEMENT:
-					switch ($reader->localName) {
-						case 'DocSum':
-							$items[] = $item;
-							$item = null;
-						break;
+                case XMLREADER::END_ELEMENT:
+                    switch ($reader->localName) {
+                        case 'DocSum':
+                            $items[] = $item;
+                            $item = null;
+                            break;
 
-						case 'Item':
-							if ($reader->getAttribute('Type') == 'List') {
-								$list = null;
-							}
-						break;
-					}
-				break;
-			}
-		}
+                        case 'Item':
+                            if ($reader->getAttribute('Type') == 'List') {
+                                $list = null;
+                            }
+                            break;
+                    }
+                    break;
+            }
+        }
 
-		foreach ($items as $item) {
-			$ids = $item['ArticleIds'];
-			$pmcid = isset($ids['pmc']) ? preg_replace('/^PMC/', '', $ids['pmc']) : null;
-			fputcsv($output, array($ids['doi'], $ids['pubmed'], $pmcid));
-		}
-	}
+        foreach ($items as $item) {
+            $ids = $item['ArticleIds'];
+            $pmcid = isset($ids['pmc']) ? preg_replace('/^PMC/', '', $ids['pmc']) : null;
+            fputcsv($output, array($ids['doi'], $ids['pubmed'], $pmcid));
+        }
+    }
 }
 
 gzclose($output);

@@ -26,24 +26,24 @@ foreach ($files as $i => $file) {
 
     $outputFile = OUTPUT_DIR . '/' . basename($file);
 
-	if (file_exists($outputFile)) {
-		continue;
-	}
+    if (file_exists($outputFile)) {
+        continue;
+    }
 
-	$input = gzopen($file, 'r');
-	$output = gzopen($outputFile, 'w');
+    $input = gzopen($file, 'r');
+    $output = gzopen($outputFile, 'w');
 
-	while (($line = fgetcsv($input)) !== false) {
-		list($doi) = $line;
+    while (($line = fgetcsv($input)) !== false) {
+        list($doi) = $line;
 
-		// TODO: log failures
-		$url = $client->locate($doi);
+        // TODO: log failures
+        $url = $client->locate($doi);
         print "\t" . $url . "\n";
 
         $host = parse_url($url, PHP_URL_HOST);
-		fputcsv($output, array($doi, $host, $url));
-	}
+        fputcsv($output, array($doi, $host, $url));
+    }
 
-	gzclose($input);
-	gzclose($output);
+    gzclose($input);
+    gzclose($output);
 }
