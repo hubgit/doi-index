@@ -1,17 +1,25 @@
 <?php
 
+/**
+ * Class CrossRefClient
+ */
 class CrossRefClient extends CurlClient {
+    /**
+     * Set some extra cURL options
+     */
 	public function __construct() {
 		parent::__construct();
 
-		curl_setopt($this->curl, CURLOPT_VERBOSE, true);
-		curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, false);
-		curl_setopt($this->curl, CURLOPT_ENCODING, null);
-		curl_setopt($this->curl, CURLOPT_NOBODY, true);
+		curl_setopt_array($this->curl, array(
+		    CURLOPT_FOLLOWLOCATION => false,
+		    CURLOPT_ENCODING => null,
+		    CURLOPT_NOBODY => true,
+    	    CURLOPT_VERBOSE => true,
+        ));
 	}
 
 	/**
-	 * make a HEAD request to get the location
+	 * Make a HEAD request to get the location (without redirection)
 	 *
 	 * @param string $doi
 	 *

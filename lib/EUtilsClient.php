@@ -19,16 +19,10 @@ class EUtilsClient extends CurlClient {
 		);
 
 		$url = $this->server . '/entrez/eutils/esearch.fcgi';
-
 		$result = $this->get($url, $params);
 
-		list($type) = preg_split('/\s*;\s*/', $this->headers['content-type'], 2);
-
-		if ($type !== 'text/xml') {
-			throw new Exception('Unexpected content type: ' . $this->headers['content-type']);
-		}
-
 		$doc = new DOMDocument;
+        $doc->validateOnParse = true;
 		$doc->loadXML($result, LIBXML_DTDLOAD | LIBXML_NOENT | LIBXML_NONET);
 
 		if (!$doc->validate()) {

@@ -1,7 +1,20 @@
 <?php
 
+/**
+ * For each day's DOIs, fetch the HTML of each resource from the registered URL
+ *
+ * Input:
+ * data/doi-url/csv/{Y-m-d}.csv.gz
+ * (one CSV file per day; doi, host, url)
+ *
+ * Output:
+ * data/doi-html/original/{Y-m-d}/{doi_base_64}.html.gz
+ * data/doi-html/original/{Y-m-d}/{doi_base_64}.json (record)
+ */
+
 require __DIR__ . '/../include.php';
 
+// data/doi-url/csv/{Y-m-d}.csv.gz
 define('INPUT_DIR', datadir('/doi-url/csv'));
 define('OUTPUT_DIR', datadir('/doi-html/original'));
 
@@ -9,8 +22,8 @@ $client = new CurlClient;
 curl_setopt_array($client->curl, array(
 	CURLOPT_COOKIEFILE => '/tmp/cookies.txt',
 	CURLOPT_COOKIEJAR => '/tmp/cookies.txt',
-	CURLOPT_USERAGENT => 'TODO',
-	CURLOPT_HEADER => array(
+    CURLOPT_USERAGENT => 'doi-index/0.1 (+http://goo.gl/AejefJ)',
+    CURLOPT_HEADER => array(
 		'Accept: text/html,application/xhtml+xml',
 	),
 ));
@@ -54,7 +67,8 @@ foreach ($files as $file) {
 			continue;
 		}
 
-		$outputFile = gzopen($output, 'w');
+        // data/doi-html/original/{Y-m-d}/{doi_base_64}.html.gz
+        $outputFile = gzopen($output, 'w');
 
 		try {
 			$client->get($url, array(), $outputFile);
@@ -73,7 +87,8 @@ foreach ($files as $file) {
 
 		print_r($data);
 
-		file_put_contents($report, json_encode($data));
+        // data/doi-html/original/{Y-m-d}/{doi_base_64}.json
+        file_put_contents($report, json_encode($data));
 	}
 
 	gzclose($input);

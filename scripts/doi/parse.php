@@ -1,38 +1,52 @@
 <?php
 
+/**
+ * For each day, read the XML files of identifiers fetched from CrossRef
+ * and save the DOIs to a CSV file
+ *
+ * Input: data/doi/original/{Y-m-d}/identifiers.{page}.xml.gz
+ * (one directory per day, one XML file per page)
+ *
+ * Output: data/doi/csv/{Y-m-d}.csv.gz
+ * (one CSV file per day; doi)
+ */
+
 require __DIR__ . '/../include.php';
 
 define('INPUT_DIR', datadir('/doi/original'));
+define('OUTPUT_DIR', datadir('/doi/csv'));
 
 $oai = new OAIClient;
 
-$iterator = new FilesystemIterator(INPUT_DIR, FilesystemIterator::SKIP_DOTS);
+// data/doi/{Y-m-d}
+$date_dirs = glob(INPUT_DIR . '/*', GLOB_ONLYDIR);
 
-foreach ($iterator as $fileinfo) {
-	print $fileinfo->getPathname() . "\n";
+foreach ($date_dirs as $date_dir) {
+    // the page number, used in the file name
+    $page = 0;
 
-	if (!$fileinfo->isDir()) {
-		continue;
-	}
+    // the resumption token, used in the request
+    $token = null;
 
-	$dir = $fileinfo->getPathname();
-	$date = basename($dir);
-	$file = datadir('/doi/csv') . '/' . $date . '.csv.gz';
-	$output = gzopen($file, 'w');
+    // get the date for the output file from the input directory name
+    $date = basename($date_dir);
 
-	$i = 0;
-	$token = null;
+    // data/doi/csv/{Y-m-d}.csv.gz
+    $output = gzopen(OUTPUT_DIR . '/' . $date . '.csv.gz', 'w');
 
-	do {
-		$filename = sprintf('%s/identifiers.%d.xml.gz', $dir, $i++);
-		print "$filename\n";
+    do {
+        // data/doi/original/{Y-m-d}/identifiers.{page}.xml.gz
+        $input_file = $date_dir . sprintf('/identifiers.%d.xml.gz', $page++);
+        print $input_file . "\n";
 
-		if (!file_exists($filename)) {
+        // if the fetching had failed for some reason, the file might not be found
+        if (!file_exists($input_file)) {
 			// TODO: error log
-			exit("File $filename does not exist\n");
+			exit("File $input_file does not exist\n");
 		}
 
-		list($xpath, $doc) = $oai->load($filename);
+        /** @var $xpath DOMXPath */
+		list($xpath, $doc) = $oai->load($input_file);
 		$root = $oai->root($xpath, 'ListIdentifiers');
 
 		foreach ($xpath->query('oai:header', $root) as $record) {
@@ -43,13 +57,16 @@ foreach ($iterator as $fileinfo) {
 				continue;
 			}
 
-			$doi = $xpath->evaluate('string(oai:identifier)', $record);
+            // just store the DOI of each record
+            $doi = $xpath->evaluate('string(oai:identifier)', $record);
 			$doi = preg_replace('#^info:doi/#', '', $doi);
 			fputcsv($output, array($doi));
 		}
 
-		$token = $oai->token($xpath, $root);
+        // the resumption token is in the response if there's another page
+        $token = $oai->token($xpath, $root);
 	} while ($token);
 
-	gzclose($output);
+    // data/doi/csv/{Y-m-d}.csv.gz
+    gzclose($output);
 }

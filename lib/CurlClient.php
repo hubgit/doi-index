@@ -1,14 +1,17 @@
 <?php
 
+/**
+ * A wrapper for cURL
+ */
 class CurlClient {
-	/** @var cURL */
+	/** @var resource */
 	public $curl;
 
 	/** @var array */
 	public $headers;
 
 	/**
-	 * read configuration and create a cURL instance
+	 * create a cURL instance
 	 */
 	public function __construct() {
 		$this->curl = curl_init();
@@ -25,7 +28,19 @@ class CurlClient {
 		));
 	}
 
-	public function get($url, $params = array(), $file = null, $tries = 0)
+    /**
+     * Make a GET request
+     * Either save the response to a file, or return it
+     *
+     * @param string $url
+     * @param array  $params
+     * @param null   $file
+     * @param int    $tries
+     *
+     * @return bool|mixed
+     * @throws Exception
+     */
+    public function get($url, $params = array(), $file = null, $tries = 0)
 	{
 		if (!empty($params)) {
 			$url .= '?' . http_build_query($params);
@@ -68,12 +83,17 @@ class CurlClient {
 		}
 	}
 
-	/**
-	 * store response headers in an array
-	 *
-	 * @return int header length
-	 */
-	protected function header($curl, $header) {
+    /**
+     * Store response headers in an array
+     *
+     * @param $curl
+     * @param $header
+     *
+     * @return int header length
+     */
+	protected function header(
+        /** @noinspection PhpUnusedParameterInspection */
+        $curl, $header) {
 		$parts = preg_split('/:\s+/', $header, 2);
 
 		if (isset($parts[1])) {

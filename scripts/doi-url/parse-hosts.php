@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Read the CSV file of URLs, normalise the host
+ * and save the URLs in a single file per host
+ *
+ * Input: data/doi-url/csv/{Y-m-d}.csv.gz
+ * (one CSV file per day; doi, host, url)
+ *
+ * Output: data/doi-url/hosts/{host}.csv
+ */
+
 require __DIR__ . '/../include.php';
 
 define('INPUT_DIR', datadir('/doi-url/csv'));

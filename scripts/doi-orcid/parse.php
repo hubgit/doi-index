@@ -8,6 +8,7 @@ $iterator = new DirectoryIterator(__DIR__ . '/in_progress/xml/');
 $total = iterator_count($iterator);
 $iterator->rewind();
 
+/** @var $fileinfo SplFileInfo */
 foreach ($iterator as $fileinfo) {
 	if (++$i % 1000 === 0) {
 		print "$i of $total\n";

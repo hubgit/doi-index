@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * For each day's DOIs, make a HEAD request to CrossRef
+ * and save the registered URL
+ *
+ * Input: data/doi/csv/{Y-m-d}.csv.gz
+ * (one CSV file per day; doi)
+ *
+ * Output: data/doi-url/csv/{Y-m-d}.csv.gz
+ * (one CSV file per day; doi, host, url)
+ */
+
 require __DIR__ . '/../include.php';
 
 define('INPUT_DIR', datadir('/doi/csv'));
@@ -11,9 +22,9 @@ $files = glob(INPUT_DIR . '/*.csv.gz');
 rsort($files);
 
 foreach ($files as $i => $file) {
-	print "$file\n";
+    print $file . "\n";
 
-	$outputFile = OUTPUT_DIR . '/' . basename($file);
+    $outputFile = OUTPUT_DIR . '/' . basename($file);
 
 	if (file_exists($outputFile)) {
 		continue;
@@ -27,9 +38,9 @@ foreach ($files as $i => $file) {
 
 		// TODO: log failures
 		$url = $client->locate($doi);
-		print "\t$url\n";
+        print "\t" . $url . "\n";
 
-		$host = parse_url($url, PHP_URL_HOST);
+        $host = parse_url($url, PHP_URL_HOST);
 		fputcsv($output, array($doi, $host, $url));
 	}
 
