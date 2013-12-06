@@ -28,7 +28,9 @@ class CurlClient
                 CURLOPT_VERBOSE => true,
                 CURLOPT_HEADERFUNCTION => array($this, 'header'),
                 CURLOPT_ENCODING => 'gzip,deflate',
-                //CURLOPT_HTTPHEADER => array('Accept: application/xml,text/xml'),
+                CURLOPT_USERAGENT => 'doi-index/0.1 (+http://goo.gl/AejefJ)',
+                CURLOPT_COOKIEFILE => '/tmp/cookies.txt',
+                CURLOPT_COOKIEJAR => '/tmp/cookies.txt',
             )
         );
     }

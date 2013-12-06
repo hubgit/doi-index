@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Search and retrieve data from EUtils
+ */
 class EUtilsClient extends CurlClient
 {
     // use a specific server so that history paging doesn't fail when round robin changes
@@ -9,6 +12,12 @@ class EUtilsClient extends CurlClient
     /** @string $db */
     public $db;
 
+    /**
+     * @param $term
+     *
+     * @return array
+     * @throws Exception
+     */
     public function search($term)
     {
         $params = array(
@@ -40,6 +49,10 @@ class EUtilsClient extends CurlClient
         );
     }
 
+    /**
+     * @param string $term
+     * @param string $dir
+     */
     public function summary($term, $dir)
     {
         $search = $this->search($term);

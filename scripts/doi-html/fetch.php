@@ -19,23 +19,15 @@ define('INPUT_DIR', datadir('/doi-url/csv'));
 define('OUTPUT_DIR', datadir('/doi-html/original'));
 
 $client = new CurlClient;
-curl_setopt_array(
-    $client->curl,
-    array(
-        CURLOPT_COOKIEFILE => '/tmp/cookies.txt',
-        CURLOPT_COOKIEJAR => '/tmp/cookies.txt',
-        CURLOPT_USERAGENT => 'doi-index/0.1 (+http://goo.gl/AejefJ)',
-        CURLOPT_HEADER => array(
-            'Accept: text/html,application/xhtml+xml',
-        ),
-    )
-);
+curl_setopt($client->curl, CURLOPT_HEADER, array(
+    'Accept: text/html,application/xhtml+xml',
+));
 
 $files = glob(INPUT_DIR . '/*.csv.gz');
 natsort($files);
 $files = array_reverse($files);
 
-$hosts = array();
+//$hosts = array();
 foreach ($files as $file) {
     print "$file\n";
 
@@ -52,6 +44,7 @@ foreach ($files as $file) {
     while (($row = fgetcsv($input)) !== false) {
         list($doi, $host, $url) = $row;
 
+        /*
         if (!isset($hosts[$host])) {
             $hosts[$host] = 0;
         }
@@ -61,6 +54,7 @@ foreach ($files as $file) {
         }
 
         $hosts[$host]++;
+        */
 
         $md5 = md5($doi);
         $output = $dir . '/' . $md5 . '.html.gz';
@@ -70,7 +64,7 @@ foreach ($files as $file) {
             continue;
         }
 
-        // data/doi-html/original/{Y-m-d}/{doi_base_64}.html.gz
+        // data/doi-html/original/{Y-m-d}/{md5_url}.html.gz
         $outputFile = gzopen($output, 'w');
 
         try {
@@ -90,7 +84,7 @@ foreach ($files as $file) {
 
         print_r($data);
 
-        // data/doi-html/original/{Y-m-d}/{doi_base_64}.json
+        // data/doi-html/original/{Y-m-d}/{md5_url}.json
         file_put_contents($report, json_encode($data));
     }
 

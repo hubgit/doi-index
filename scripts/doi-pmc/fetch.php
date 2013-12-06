@@ -7,8 +7,13 @@ define('OUTPUT_DIR', datadir('/doi-pmc/original'));
 $oai = new OAIClient();
 $oai->base = 'http://www.pubmedcentral.nih.gov/oai/oai.cgi';
 
-// http://www.pubmedcentral.nih.gov/oai/oai.cgi?verb=Identify -> earliestDatestamp
-$earliest = new DateTime('1999-01-01T12:00:00Z');
+// get the OAI-PMH server identity, for the earliestDatestamp info
+$identity = $oai->identify();
+
+// set the earliest date for which a record is available
+$earliest = new DateTime($identity['earliestDatestamp'] . 'T12:00:00Z');
+printf("Earliest record: %s\n", $earliest->format(DATE_ATOM));
+
 $datetime = new DateTime('-2 DAYS');
 
 do {

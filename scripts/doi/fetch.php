@@ -19,7 +19,7 @@ define('OUTPUT_DIR', datadir('/doi/original'));
 $oai = new OAIClient;
 $oai->base = 'http://oai.crossref.org/OAIHandler';
 
-// set the timeout to 10 minutes, as the response can be slow
+// set the timeout to 1 hour, as the response can be slow
 curl_setopt($oai->curl, CURLOPT_TIMEOUT, 600);
 
 // get the OAI-PMH server identity, for the earliestDatestamp info

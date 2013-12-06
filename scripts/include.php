@@ -3,7 +3,7 @@
 date_default_timezone_set('UTC');
 
 /**
- * @param $class
+ * @param string $class
  */
 function __autoload($class)
 {
@@ -14,7 +14,7 @@ function __autoload($class)
 /**
  * Build the path to a data directory, and make sure it exists
  *
- * @param $suffix
+ * @param string $suffix
  *
  * @return string
  */

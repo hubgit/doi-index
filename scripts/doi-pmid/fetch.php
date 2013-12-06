@@ -8,6 +8,7 @@ $client = new EUtilsClient;
 $client->db = 'pubmed';
 
 // http://www.ncbi.nlm.nih.gov/pubmed/?term=doi[sb] -> last page
+// TODO: fetch the earliest result with a search query
 $earliest = new DateTime('1880-01-01T12:00:00Z');
 $datetime = new DateTime('-2 DAYS');
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class CrossRefClient
+ * Fetch data from CrossRef
  */
 class CrossRefClient extends CurlClient
 {
