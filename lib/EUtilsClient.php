@@ -44,13 +44,7 @@ class EUtilsClient extends CurlClient {
 		);
 	}
 
-	public function summary($term, $basefile) {
-		$filename = sprintf('%s.%d.xml.gz', $basefile, $offset);
-
-		if (file_exists($filename)) {
-			return;
-		}
-
+	public function summary($term, $dir) {
 		$search = $this->search($term);
 		print_r($search);
 
@@ -62,13 +56,8 @@ class EUtilsClient extends CurlClient {
 
 		$offset = 0;
 		$rows = 1000;
-		$this->files = array();
 
 		do {
-			$filename = sprintf('%s.%d.xml.gz', $basefile, $offset);
-			$output = gzopen($filename, 'w');
-			$this->files[] = $filename;
-
 			$params = array(
 				'retmode' => 'xml',
 				'db' => $this->db,
@@ -78,19 +67,11 @@ class EUtilsClient extends CurlClient {
 				'retmax' => $rows,
 			);
 
-			try {
-				$this->get($url, $params, $output);
-				gzclose($output);
-			} catch (Exception $e) {
-				gzclose($output);
+			$filename = $dir . '/' . $offset . '.xml.gz';
+			$output = gzopen($filename, 'w');
 
-				foreach ($this->files as $filename) {
-					print "Deleting $filename\n";
-					unlink($filename);
-				}
-
-				throw $e;
-			}
+			$this->get($url, $params, $output);
+			gzclose($output);
 
 			$offset += $rows;
 		} while ($offset < $search['count']);

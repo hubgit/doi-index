@@ -9,14 +9,15 @@ $oai = new OAIClient;
 $iterator = new FilesystemIterator(INPUT_DIR, FilesystemIterator::SKIP_DOTS);
 
 foreach ($iterator as $fileinfo) {
-	print $fileinfo->getPathname();
+	print $fileinfo->getPathname() . "\n";
 
 	if (!$fileinfo->isDir()) {
 		continue;
 	}
 
 	$dir = $fileinfo->getPathname();
-	$file = datadir('/doi/csv') . '/' . basename($dir) . '/doi.csv.gz';
+	$date = basename($dir);
+	$file = datadir('/doi/csv') . '/' . $date . '.csv.gz';
 	$output = gzopen($file, 'w');
 
 	$i = 0;
@@ -51,6 +52,4 @@ foreach ($iterator as $fileinfo) {
 	} while ($token);
 
 	gzclose($output);
-
 }
-

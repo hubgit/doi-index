@@ -2,8 +2,8 @@
 
 require __DIR__ . '/../include.php';
 
-define('INPUT_DIR', datadir('/doi'));
-define('OUTPUT_DIR', datadir('/doi-url'));
+define('INPUT_DIR', datadir('/doi/csv'));
+define('OUTPUT_DIR', datadir('/doi-url/csv'));
 
 $client = new CrossRefClient;
 
@@ -35,8 +35,4 @@ foreach ($files as $i => $file) {
 
 	gzclose($input);
 	gzclose($output);
-
-	if ($i % 100 === 0) {
-		sleep(5);
-	}
 }
