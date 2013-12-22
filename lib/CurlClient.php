@@ -131,7 +131,7 @@ class CurlClient
         print "\n";
 
         do {
-            print "\r";
+            print "\r\e[K";
             printf('Sleeping for %d seconds', $delay--);
             sleep(1);
         } while ($delay);
