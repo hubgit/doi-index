@@ -20,6 +20,7 @@ $oai = new OAIClient;
 
 // data/doi/{Y-m-d}
 $date_dirs = glob(INPUT_DIR . '/*', GLOB_ONLYDIR);
+rsort($date_dirs);
 
 foreach ($date_dirs as $date_dir) {
     // the page number, used in the file name
@@ -32,7 +33,13 @@ foreach ($date_dirs as $date_dir) {
     $date = basename($date_dir);
 
     // data/doi/csv/{Y-m-d}.csv.gz
-    $output = gzopen(OUTPUT_DIR . '/' . $date . '.csv.gz', 'w');
+    $output_file = OUTPUT_DIR . '/' . $date . '.csv.gz';
+
+    if (file_exists($output_file)) {
+        continue;
+    }
+
+    $output = gzopen($output_file, 'w');
 
     do {
         // data/doi/original/{Y-m-d}/identifiers.{page}.xml.gz

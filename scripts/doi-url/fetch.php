@@ -8,7 +8,7 @@
  * (one CSV file per day; doi)
  *
  * Output: data/doi-url/csv/{Y-m-d}.csv.gz
- * (one CSV file per day; doi, host, url)
+ * (one CSV file per day; doi, url)
  */
 
 require __DIR__ . '/../include.php';
@@ -40,8 +40,7 @@ foreach ($files as $i => $file) {
         $url = $client->locate($doi);
         print "\t" . $url . "\n";
 
-        $host = parse_url($url, PHP_URL_HOST);
-        fputcsv($output, array($doi, $host, $url));
+        fputcsv($output, array($doi, $url));
     }
 
     gzclose($input);

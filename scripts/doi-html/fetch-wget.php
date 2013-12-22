@@ -31,7 +31,7 @@ foreach ($files as $file) {
 
     $dir = OUTPUT_DIR . '/' . $date;
     if (file_exists($dir)) {
-        continue;
+        //continue;
     }
     mkdir($dir);
 
@@ -46,7 +46,7 @@ foreach ($files as $file) {
             continue;
         }
 
-        $command = sprintf('wget -e robots=off --connect-timeout=10 --read-timeout=60 --wait=1 --warc-file=%s --user-agent=%s --load-cookies=%s --save-cookies=%s --output-document=%s %s',
+        $command = sprintf('wget -e robots=off --connect-timeout=10 --read-timeout=60 --wait=1 --no-warc-keep-log --warc-file=%s --user-agent=%s --load-cookies=%s --save-cookies=%s --output-document=%s %s',
             escapeshellarg($output),
             escapeshellarg(USER_AGENT),
             escapeshellarg('/tmp/cookies.txt'),

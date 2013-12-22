@@ -53,7 +53,7 @@ do {
 
         try {
             // files will be $dir/identifiers.{page}.xml.gz
-            $prefix = $dir . '/identifiers';
+            $prefix = $dir . '/identifiers.';
             $oai->fetch('ListIdentifiers', $params, $prefix);
         } catch (Exception $e) {
             // if something goes wrong, remove all the files and date directory
