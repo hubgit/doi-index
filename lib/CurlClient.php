@@ -127,8 +127,13 @@ class CurlClient
         if ($delay < 10) {
             $delay = 60 * 15; // 15 minute delay if the given delay seems unreasonably small (can be due to server time differences)
         }
+        
+        print "\n";
 
-        printf('Sleeping for %d seconds', $delay);
-        sleep($delay);
+        do {
+            print "\r";
+            printf('Sleeping for %d seconds', $delay--);
+            sleep(1);
+        } while ($delay);
     }
 }
